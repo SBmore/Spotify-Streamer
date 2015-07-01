@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="app.com.example.android.spotifystreamer.top_ten_tracksFragment">
+
+    <ImageView
+        android:id="@+id/track_image"
+        android:layout_width="wrap_content"
+        android:layout_height="65dp"
+        android:src="@drawable/art_clear"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true" />
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/list_item_top_ten_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingLeft="5dp"
+        android:layout_alignTop="@+id/track_image"
+        android:layout_toRightOf="@+id/track_image"
+        android:layout_toEndOf="@+id/track_image"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight">
+    </TextView>
+</RelativeLayout>

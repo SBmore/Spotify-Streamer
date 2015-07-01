@@ -1,5 +1,6 @@
 package app.com.example.android.spotifystreamer;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -32,6 +34,7 @@ public class MainActivityFragment extends Fragment {
     private final String LOG_TAG = FetchArtistsTask.class.getSimpleName();
     private EditText mEditTest;
     private ArrayAdapter<String> mArtistSearchAdapter;
+    private String[] mArtistIDArray = new String[10];
     private TextWatcher mTextWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {
             updateArtists();
@@ -65,6 +68,20 @@ public class MainActivityFragment extends Fragment {
         ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
         listView.setAdapter(mArtistSearchAdapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                if(mArtistIDArray[i] != null && mArtistIDArray[i] != "") {
+                    Intent intent = new Intent(getActivity(), top_ten_tracks.class);
+                    intent.putExtra("artistName", mArtistSearchAdapter.getItem(i));
+                    intent.putExtra("artistID", mArtistIDArray[i]);
+
+                    startActivity(intent);
+                }
+            }
+        });
+
         return rootView;
     }
 
@@ -90,7 +107,7 @@ public class MainActivityFragment extends Fragment {
         protected String[] doInBackground(String... params) {
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotify = api.getService();
-            ArtistsPager artistsGet = new ArtistsPager();
+            ArtistsPager artistsGet;
             List<Artist> items;
             String[] artistArray = new String[10];
 
@@ -109,6 +126,7 @@ public class MainActivityFragment extends Fragment {
                 for (int i = 0; i < artistArray.length; i++) {
                     if (i < items.size()) {
                         artistArray[i] = items.get(i).name;
+                        mArtistIDArray[i] = items.get(i).id;
                     } else {
                         artistArray[i] = "";
                     }
