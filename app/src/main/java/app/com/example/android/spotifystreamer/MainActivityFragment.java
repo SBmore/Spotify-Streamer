@@ -1,23 +1,24 @@
 package app.com.example.android.spotifystreamer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOError;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -30,22 +31,12 @@ import kaaes.spotify.webapi.android.models.ArtistsPager;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-
     private final String LOG_TAG = FetchArtistsTask.class.getSimpleName();
+
     private EditText mEditTest;
-    private ArrayAdapter<String> mArtistSearchAdapter;
     private String[] mArtistIDArray = new String[10];
-    private TextWatcher mTextWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {
-            updateArtists();
-        }
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-    };
+    private SpotifyListDataAdapter mArtistInfoAdapter;
+    private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
 
     public MainActivityFragment() {
     }
@@ -54,29 +45,31 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mArtistSearchAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.list_item_artist,
-                R.id.list_item_artist_textview,
-                new ArrayList<String>());
-
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        mArtistInfoAdapter = new SpotifyListDataAdapter(getActivity(), mSpotifyArrayList);
+
         mEditTest = (EditText) rootView.findViewById(R.id.editText_artist_search);
-        mEditTest.addTextChangedListener(mTextWatcher);
+        mEditTest.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    updateArtists();
+                }
+                return false;
+            }
+        });
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
-        listView.setAdapter(mArtistSearchAdapter);
+        listView.setAdapter(mArtistInfoAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                if(mArtistIDArray[i] != null && mArtistIDArray[i] != "") {
-                    Intent intent = new Intent(getActivity(), top_ten_tracks.class);
-                    intent.putExtra("artistName", mArtistSearchAdapter.getItem(i));
+                if (mArtistIDArray[i] != null && mArtistIDArray[i] != "") {
+                    Intent intent = new Intent(getActivity(), TopTenTracks.class);
                     intent.putExtra("artistID", mArtistIDArray[i]);
-
                     startActivity(intent);
                 }
             }
@@ -88,7 +81,6 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateArtists();
     }
 
     public void updateArtists() {
@@ -101,47 +93,54 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    public class FetchArtistsTask extends AsyncTask<String, Void, String[]> {
+    public class FetchArtistsTask extends AsyncTask<String, Void, SpotifyListData[]> {
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected SpotifyListData[] doInBackground(String... params) {
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotify = api.getService();
+            SpotifyListData[] spotifyDataArray = new SpotifyListData[10];
             ArtistsPager artistsGet;
             List<Artist> items;
-            String[] artistArray = new String[10];
+            String name;
+            String detail = "";
+            String image;
 
-            if (params[0].length() == 0) {
-                artistsGet = null;
+            artistsGet = spotify.searchArtists("artist:" + params[0] + "**");
+
+            items = artistsGet.artists.items;
+
+            if (items.size() == 0) {
+                return null;
             } else {
-                artistsGet = spotify.searchArtists("artist:" + params[0] + "**");
-            }
+                for (int i = 0; i < spotifyDataArray.length; i++) {
+                    mArtistIDArray[i] = items.get(i).id;
+                    name = items.get(i).name;
+                    findImageClosestSize finder = new findImageClosestSize();
+                    image = finder.findImageUrl(items.get(i).images, 200, 200);
 
-            if (artistsGet == null) {
-                for (int i = 0; i < artistArray.length; i++) {
-                    artistArray[i] = "";
+                    spotifyDataArray[i] = new SpotifyListData(name, detail, image, "artist");
                 }
-            } else {
-                items = artistsGet.artists.items;
-                for (int i = 0; i < artistArray.length; i++) {
-                    if (i < items.size()) {
-                        artistArray[i] = items.get(i).name;
-                        mArtistIDArray[i] = items.get(i).id;
-                    } else {
-                        artistArray[i] = "";
-                    }
-                }
+                return spotifyDataArray;
             }
-
-            return artistArray;
         }
 
+
         @Override
-        protected void onPostExecute(String[] strings) {
-            if (strings != null) {
-                List<String> topArtistResults = new ArrayList<>(Arrays.asList(strings));
-                mArtistSearchAdapter.clear();
-                mArtistSearchAdapter.addAll(topArtistResults);
+        protected void onPostExecute(SpotifyListData[] data) {
+            if (data != null) {
+                mSpotifyArrayList.clear();
+                for (int i = 0; i < data.length; i++) {
+                    mSpotifyArrayList.add(data[i]);
+                }
+                mArtistInfoAdapter.notifyDataSetChanged();
+            } else {
+                Context context = getActivity().getApplication().getApplicationContext();
+                CharSequence text = "No results found.\nPlease refine your search!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
             }
         }
     }

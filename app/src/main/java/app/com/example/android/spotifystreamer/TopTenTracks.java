@@ -6,7 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class top_ten_tracks extends ActionBarActivity {
+public class TopTenTracks extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

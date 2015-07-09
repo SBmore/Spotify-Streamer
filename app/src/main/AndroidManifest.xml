@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".top_ten_tracks"
+            android:name=".TopTenTracks"
             android:label="@string/title_activity_top_ten_tracks"
             android:parentActivityName=".MainActivity" >
             <meta-data

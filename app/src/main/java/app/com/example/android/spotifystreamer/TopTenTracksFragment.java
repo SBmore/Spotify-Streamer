@@ -7,12 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.io.IOError;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +24,14 @@ import kaaes.spotify.webapi.android.models.Tracks;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class top_ten_tracksFragment extends Fragment {
+public class TopTenTracksFragment extends Fragment {
 
     private final String LOG_TAG = FetchTopTenTask.class.getSimpleName();
-    private ArrayAdapter<String> mTopTenSearchAdapter;
+    private SpotifyListDataAdapter mTopTenAdapter;
+    private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
     private String mArtist;
 
-    public top_ten_tracksFragment() {
+    public TopTenTracksFragment() {
     }
 
     @Override
@@ -47,16 +46,12 @@ public class top_ten_tracksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mTopTenSearchAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.list_item_top_ten,
-                R.id.list_item_top_ten_textview,
-                new ArrayList<String>());
+        mTopTenAdapter = new SpotifyListDataAdapter(getActivity(), mSpotifyArrayList);
 
         View rootView = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
 
         ListView listView = (ListView) rootView.findViewById(R.id.listView_top_ten);
-        listView.setAdapter(mTopTenSearchAdapter);
+        listView.setAdapter(mTopTenAdapter);
 
         return rootView;
     }
@@ -75,49 +70,53 @@ public class top_ten_tracksFragment extends Fragment {
         }
     }
 
-    public class FetchTopTenTask extends AsyncTask<String, Void, String[]> {
+    public class FetchTopTenTask extends AsyncTask<String, Void, SpotifyListData[]> {
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected SpotifyListData[] doInBackground(String... params) {
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotify = api.getService();
+            SpotifyListData[] spotifyDataArray = new SpotifyListData[10];
             Tracks topTracks;
             List<Track> items;
-            String[] trackList = new String[10];
+            String name;
+            String detail;
+            String image;
 
             if (params[0].length() == 0) {
-                topTracks = null;
+                for (int i = 0; i < spotifyDataArray.length; i++) {
+                    spotifyDataArray[i] = new SpotifyListData("", "", "", "");
+                }
             } else {
                 // https://github.com/spotify/android-sdk/issues/130
                 Map<String, Object> options = new HashMap<>();
                 options.put("country", "GB");
                 topTracks = spotify.getArtistTopTrack(params[0], options);
-            }
 
-            if (topTracks == null) {
-                for (int i = 0; i < trackList.length; i++) {
-                    trackList[i] = "";
-                }
-            } else {
                 items = topTracks.tracks;
-                for (int i = 0; i < trackList.length; i++) {
+                for (int i = 0; i < spotifyDataArray.length; i++) {
                     if (i < items.size()) {
-                        trackList[i] = items.get(i).name + "\n" + items.get(i).album.name;
+                        name = items.get(i).name;
+                        detail = items.get(i).album.name;
+                        findImageClosestSize finder = new findImageClosestSize();
+                        image = finder.findImageUrl(items.get(i).album.images, 200, 200);
+                        spotifyDataArray[i] = new SpotifyListData(name, detail, image, "tracks");
                     } else {
-                        trackList[i] = "";
+                        spotifyDataArray[i] = new SpotifyListData("", "", "", "");
                     }
                 }
             }
-
-            return trackList;
+            return spotifyDataArray;
         }
 
         @Override
-        protected void onPostExecute(String[] strings) {
-            if (strings != null) {
-                List<String> topArtistResults = new ArrayList<>(Arrays.asList(strings));
-                mTopTenSearchAdapter.clear();
-                mTopTenSearchAdapter.addAll(topArtistResults);
+        protected void onPostExecute(SpotifyListData[] data) {
+            if (data[0] != null) {
+                mSpotifyArrayList.clear();
+                for (int i = 0; i < data.length; i++) {
+                    mSpotifyArrayList.add(data[i]);
+                }
+                mTopTenAdapter.notifyDataSetChanged();
             }
         }
     }
