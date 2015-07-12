@@ -1,20 +1,56 @@
 package app.com.example.android.spotifystreamer;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Steven on 04/07/2015.
- * Technique learned from (23:40):
- *   https://plus.google.com/events/chlh8qqr5q5grs1lajpqnvvql8k?authkey=CNXMrZuHsMWhNg
+ * Parcelable technique learned from Udacity Webcast:
+ *   https://plus.google.com/u/0/events/cfftk1qo4tjn7enecof6f9oes0o?authkey=CNu5uui-k5qAtQE
  */
-public class SpotifyListData {
+public class SpotifyListData implements Parcelable {
     String spotifyDataName;
     String spotifyDataDetail;
     String spotifyDataImage;
+    String spotifyID;
     String callType;
 
-    public SpotifyListData(String sName, String sDetail, String sImage, String cType) {
+    public SpotifyListData(String sName, String sDetail, String sImage, String cType, String ID) {
         this.spotifyDataName = sName;
         this.spotifyDataDetail = sDetail;
         this.spotifyDataImage = sImage;
         this.callType = cType;
+        this.spotifyID = ID;
     }
+
+    private SpotifyListData(Parcel in) {
+        spotifyDataName = in.readString();
+        spotifyDataDetail = in.readString();
+        spotifyDataImage = in.readString();
+        callType = in.readString();
+        spotifyID = in.readString();
+    }
+
+    @Override
+    public int describeContents() { return 0; }
+
+    public String toString() { return spotifyDataName + "--" + spotifyDataDetail + "--" +
+            spotifyDataImage + "--" + callType + "--" + spotifyID; }
+
+    public void writeToParcel(Parcel parcel, int i)
+    {
+        parcel.writeString(spotifyDataName);
+        parcel.writeString(spotifyDataDetail);
+        parcel.writeString(spotifyDataImage);
+        parcel.writeString(callType);
+        parcel.writeString(spotifyID);
+    }
+
+    public final Parcelable.Creator<SpotifyListData> CREATOR = new Parcelable.Creator<SpotifyListData>() {
+        @Override
+        public SpotifyListData createFromParcel(Parcel parcel) { return new SpotifyListData(parcel); }
+
+        @Override
+        public SpotifyListData[] newArray(int i) { return new SpotifyListData[i]; }
+    };
 }

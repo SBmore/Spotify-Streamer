@@ -40,7 +40,7 @@ public class findImageClosestSize {
             return images.get(index).url;
         } else {
             // return silhouette to indicate no image found
-            return "https://upload.wikimedia.org/wikipedia/commons/5/53/Gray_-_replace_this_image_male.svg";
+            return "http://i.imgur.com/0I2zfkf.png";
         }
     }
 }
