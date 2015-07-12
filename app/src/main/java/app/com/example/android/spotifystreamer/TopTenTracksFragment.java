@@ -117,7 +117,7 @@ public class TopTenTracksFragment extends Fragment {
                     for (int i = 0; i < mSpotifyDataArray.length; i++) {
                         if (i < items.size()) {
                             String name = items.get(i).name;
-                            findImageClosestSize finder = new findImageClosestSize();
+                            FindImageClosestSize finder = new FindImageClosestSize();
                             String image = finder.findImageUrl(items.get(i).album.images, 200, 200);
                             String detail = items.get(i).album.name;
 

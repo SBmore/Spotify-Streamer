@@ -7,7 +7,7 @@ import kaaes.spotify.webapi.android.models.Image;
 /**
  * Created by Steven on 04/07/2015.
  */
-public class findImageClosestSize {
+public class FindImageClosestSize {
 
     public String findImageUrl(List<Image> images, int desiredHeight, int desiredWidth) {
 
