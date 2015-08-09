@@ -47,6 +47,8 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.v(LOG_TAG, "onCreate");
+
         if (savedInstanceState != null && savedInstanceState.containsKey("artists")) {
             mSpotifyArrayList = savedInstanceState.getParcelableArrayList("artists");
         }
@@ -183,5 +185,35 @@ public class MainActivityFragment extends Fragment {
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
             return activeNetworkInfo != null && activeNetworkInfo.isConnected();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.v(LOG_TAG,"onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.v(LOG_TAG,"onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.v(LOG_TAG,"onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v(LOG_TAG,"onStop");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.v(LOG_TAG,"onDestroy");
     }
 }
