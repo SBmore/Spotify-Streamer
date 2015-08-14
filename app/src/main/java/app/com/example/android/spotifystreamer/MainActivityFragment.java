@@ -2,6 +2,7 @@ package app.com.example.android.spotifystreamer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -23,6 +24,7 @@ import java.io.IOError;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.com.example.android.spotifystreamer.data.SpotifyContract;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
@@ -39,6 +41,30 @@ public class MainActivityFragment extends Fragment {
     private SpotifyListDataAdapter mArtistInfoAdapter;
     private SpotifyListData[] mSpotifyDataArray = new SpotifyListData[10];
     private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
+
+    private final static int FORECAST_LOADER_ID = 0;
+    private static final String[] FORECAST_COLUMNS = {
+            SpotifyContract.TracksEntry.TABLE_NAME + "." + SpotifyContract.TracksEntry._ID,
+            SpotifyContract.TracksEntry.COLUMN_ARTISTS_ID,
+            SpotifyContract.TracksEntry.COLUMN_ARTISTS_NAME,
+            SpotifyContract.TracksEntry.COLUMN_ARTISTS_IMAGE,
+            SpotifyContract.TracksEntry.COLUMN_TRACKS_ID,
+            SpotifyContract.TracksEntry.COLUMN_TRACKS_NAME,
+            SpotifyContract.TracksEntry.COLUMN_ALBUM_NAME,
+            SpotifyContract.TracksEntry.COLUMN_ALBUM_IMAGE,
+    };
+
+    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
+    // must change.
+    static final int COL_ROW_ID = 0;
+    static final int COLUMN_ARTISTS_ID = 1;
+    static final int COLUMN_ARTISTS_NAME = 2;
+    static final int COLUMN_ARTISTS_IMAGE = 3;
+    static final int COLUMN_TRACKS_ID = 4;
+    static final int COLUMN_TRACKS_NAME = 5;
+    static final int COLUMN_ALBUM_NAME = 6;
+    static final int COLUMN_ALBUM_IMAGE = 7;
+
 
     public MainActivityFragment() {
     }
@@ -65,7 +91,6 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
         mArtistInfoAdapter = new SpotifyListDataAdapter(getActivity(), mSpotifyArrayList);
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
@@ -89,11 +114,17 @@ public class MainActivityFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String artistID = mSpotifyArrayList.get(i).spotifyID;
-                if (artistID != null && artistID != "") {
-                    Intent intent = new Intent(getActivity(), TopTenTracks.class);
-                    intent.putExtra("artistID", artistID);
-                    startActivity(intent);
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(i);
+                if (cursor != null) {
+                    String artistID = mSpotifyArrayList.get(i).spotifyID;
+                    if (artistID != null && artistID != "") {
+                        Intent intent = new Intent(getActivity(), TopTenTracksFragment.class)
+                                .setData(SpotifyContract.TracksEntry.buildTopTenTracksFromArtistID(
+                                                artistID)
+                                );
+
+                        startActivity(intent);
+                    }
                 }
             }
         });
