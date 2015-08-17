@@ -30,6 +30,8 @@ import kaaes.spotify.webapi.android.models.Tracks;
  */
 public class TopTenTracksFragment extends Fragment {
     private final String LOG_TAG = FetchTopTenTask.class.getSimpleName();
+    static final String TOP_TEN_DATA_KEY = "ARTIST";  // key for intent and parcelable
+    static final String TOP_TEN_SAVE_KEY = "TRACKS";  // key for savedInstanceState
 
     private SpotifyListDataAdapter mTopTenAdapter;
     private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
@@ -44,22 +46,26 @@ public class TopTenTracksFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("tracks")) {
-            mSpotifyArrayList = savedInstanceState.getParcelableArrayList("tracks");
-        } else {
-            mArtist = getActivity().getIntent().getStringExtra("artistID");
+        if (savedInstanceState != null && savedInstanceState.containsKey(TOP_TEN_SAVE_KEY)) {
+            mSpotifyArrayList = savedInstanceState.getParcelableArrayList(TOP_TEN_SAVE_KEY);
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("tracks", mSpotifyArrayList);
+        outState.putParcelableArrayList(TOP_TEN_SAVE_KEY, mSpotifyArrayList);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mArtist = arguments.getParcelable(TOP_TEN_DATA_KEY);
+        } else {
+            mArtist = getActivity().getIntent().getStringExtra(TOP_TEN_DATA_KEY);
+        }
 
         mTopTenAdapter = new SpotifyListDataAdapter(getActivity(), mSpotifyArrayList);
 
@@ -76,7 +82,7 @@ public class TopTenTracksFragment extends Fragment {
         super.onStart();
 
         // only update if it's empty, otherwise let the parcelable handle it
-        if (mSpotifyArrayList.size() == 0) {
+        if (mSpotifyArrayList != null && mSpotifyArrayList.size() > 0) {
             updateTracks();
         }
     }

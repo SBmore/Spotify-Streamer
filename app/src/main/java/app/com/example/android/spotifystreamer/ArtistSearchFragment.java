@@ -1,7 +1,6 @@
 package app.com.example.android.spotifystreamer;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -32,7 +31,7 @@ import kaaes.spotify.webapi.android.models.ArtistsPager;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class ArtistSearchFragment extends Fragment {
     private final String LOG_TAG = FetchArtistsTask.class.getSimpleName();
 
     private EditText mEditTest;
@@ -40,7 +39,19 @@ public class MainActivityFragment extends Fragment {
     private SpotifyListData[] mSpotifyDataArray = new SpotifyListData[10];
     private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
 
-    public MainActivityFragment() {
+    public ArtistSearchFragment() {
+    }
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(String artistID);
     }
 
     @Override
@@ -89,9 +100,7 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String artistID = mSpotifyArrayList.get(i).spotifyID;
                 if (artistID != null && artistID != "") {
-                    Intent intent = new Intent(getActivity(), TopTenTracks.class);
-                    intent.putExtra("artistID", artistID);
-                    startActivity(intent);
+                    ((Callback) getActivity()).onItemSelected(artistID);
                 }
             }
         });
@@ -151,7 +160,7 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String data) {
-            if (data == "success") { 
+            if (data == "success") {
                 mSpotifyArrayList.clear();
                 for (int i = 0; i < mSpotifyDataArray.length; i++) {
                     mSpotifyArrayList.add(mSpotifyDataArray[i]);
@@ -163,7 +172,7 @@ public class MainActivityFragment extends Fragment {
                 Context context = getActivity().getApplication().getApplicationContext();
                 CharSequence text = "There was an unknown problem.";
 
-                if (data == "empty"){
+                if (data == "empty") {
                     text = "No results found.\nPlease refine your search!";
                 } else if (data == "no connection") {
                     text = "No connection found.\nPlease connect to the internet!";

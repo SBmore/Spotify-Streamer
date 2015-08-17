@@ -5,7 +5,7 @@
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
-    tools:context="app.com.example.android.spotifystreamer.MainActivityFragment">
+    tools:context="app.com.example.android.spotifystreamer.ArtistSearchFragment">
 
     <ImageView
         android:id="@+id/artist_thumbnail_ImageView"

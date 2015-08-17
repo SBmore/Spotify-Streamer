@@ -6,12 +6,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class TopTenTracks extends ActionBarActivity {
+public class TopTenTracksActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_ten_tracks);
+
+        if (savedInstanceState == null) {
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
+
+            Bundle arguments = new Bundle();
+            arguments.putString(TopTenTracksFragment.TOP_TEN_DATA_KEY,getIntent().getStringExtra(TopTenTracksFragment.TOP_TEN_DATA_KEY));
+
+            TopTenTracksFragment fragment = new TopTenTracksFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.top_ten_tracks_container, fragment)
+                    .commit();
+        }
     }
 
 
