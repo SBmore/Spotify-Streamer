@@ -18,7 +18,7 @@ public class TopTenTracksActivity extends ActionBarActivity {
             // using a fragment transaction.
 
             Bundle arguments = new Bundle();
-            arguments.putString(TopTenTracksFragment.TOP_TEN_DATA_KEY,getIntent().getStringExtra(TopTenTracksFragment.TOP_TEN_DATA_KEY));
+            arguments.putString(TopTenTracksFragment.TOP_TEN_DATA_KEY, getIntent().getStringExtra(TopTenTracksFragment.TOP_TEN_DATA_KEY));
 
             TopTenTracksFragment fragment = new TopTenTracksFragment();
             fragment.setArguments(arguments);

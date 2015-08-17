@@ -62,7 +62,7 @@ public class TopTenTracksFragment extends Fragment {
                              Bundle savedInstanceState) {
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mArtist = arguments.getParcelable(TOP_TEN_DATA_KEY);
+            mArtist = arguments.getString(TOP_TEN_DATA_KEY);
         } else {
             mArtist = getActivity().getIntent().getStringExtra(TOP_TEN_DATA_KEY);
         }
@@ -82,7 +82,7 @@ public class TopTenTracksFragment extends Fragment {
         super.onStart();
 
         // only update if it's empty, otherwise let the parcelable handle it
-        if (mSpotifyArrayList != null && mSpotifyArrayList.size() > 0) {
+        if (mSpotifyArrayList != null && mArtist != null) {
             updateTracks();
         }
     }
