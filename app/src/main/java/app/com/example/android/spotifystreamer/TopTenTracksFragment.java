@@ -6,10 +6,12 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -37,6 +39,7 @@ public class TopTenTracksFragment extends Fragment {
     private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
     private SpotifyListData[] mSpotifyDataArray = new SpotifyListData[10];
     private String mArtist;
+    private int mStackLevel = 0;
 
     public TopTenTracksFragment() {
     }
@@ -71,8 +74,17 @@ public class TopTenTracksFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listView_top_ten);
-        listView.setAdapter(mTopTenAdapter);
+        ListView tracksListView = (ListView) rootView.findViewById(R.id.listView_top_ten);
+        tracksListView.setAdapter(mTopTenAdapter);
+
+        // Put data into an Intent and send it over to the Top Ten Tracks when
+        // the user clicks on an item in the listView
+        tracksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                showDialog();
+            }
+        });
 
         return rootView;
     }
@@ -174,5 +186,23 @@ public class TopTenTracksFragment extends Fragment {
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
             return activeNetworkInfo != null && activeNetworkInfo.isConnected();
         }
+    }
+
+    void showDialog() {
+        mStackLevel++;
+
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        NowPlayingDialogFragment nowPlaying = NowPlayingDialogFragment.newInstance(mStackLevel);
+        nowPlaying.show(ft, "dialog");
     }
 }

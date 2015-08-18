@@ -77,8 +77,8 @@ public class ArtistSearchFragment extends Fragment {
 
         mArtistInfoAdapter = new SpotifyListDataAdapter(getActivity(), mSpotifyArrayList);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
-        listView.setAdapter(mArtistInfoAdapter);
+        ListView artistListView = (ListView) rootView.findViewById(R.id.listview_artists);
+        artistListView.setAdapter(mArtistInfoAdapter);
 
         // Update the data when the user submits what they typed in the editText
         mEditTest = (EditText) rootView.findViewById(R.id.editText_artist_search);
@@ -95,7 +95,7 @@ public class ArtistSearchFragment extends Fragment {
 
         // Put data into an Intent and send it over to the Top Ten Tracks when
         // the user clicks on an item in the listView
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String artistID = mSpotifyArrayList.get(i).spotifyID;

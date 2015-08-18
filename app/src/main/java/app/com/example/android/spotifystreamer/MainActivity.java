@@ -6,12 +6,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
 public class MainActivity extends ActionBarActivity implements ArtistSearchFragment.Callback {
 
     public static String PACKAGE_NAME;
     private final String TOP_TRACKS_FRAGMENT_TAG = "TTFTAG";
-
     private boolean mTwoPane;
 
     @Override
