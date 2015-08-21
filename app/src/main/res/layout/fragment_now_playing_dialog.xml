@@ -96,19 +96,19 @@
         android:padding="16dp">
 
         <ImageView
-            android:id="@+id/skip_back_imageview"
+            android:id="@+id/previous_song_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="32dp"
             android:src="@android:drawable/ic_media_previous" />
         <ImageView
-            android:id="@+id/pause_song_imageview"
+            android:id="@+id/pause_play_song_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="32dp"
             android:src="@android:drawable/ic_media_play" />
         <ImageView
-            android:id="@+id/skip_forward_imageview"
+            android:id="@+id/next_song_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="32dp"

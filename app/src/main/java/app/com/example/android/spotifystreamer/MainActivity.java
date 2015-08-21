@@ -10,7 +10,7 @@ public class MainActivity extends ActionBarActivity implements ArtistSearchFragm
 
     public static String PACKAGE_NAME;
     private final String TOP_TRACKS_FRAGMENT_TAG = "TTFTAG";
-    private boolean mTwoPane;
+    public boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

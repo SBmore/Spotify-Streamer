@@ -191,11 +191,9 @@ public class TopTenTracksFragment extends Fragment {
     void showDialog() {
         mStackLevel++;
 
-        // DialogFragment.show() will take care of adding the fragment
-        // in a transaction.  We also want to remove any currently showing
-        // dialog, so make our own transaction and take care of that here.
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+
         if (prev != null) {
             ft.remove(prev);
         }
