@@ -13,13 +13,16 @@ public class SpotifyListData implements Parcelable {
     String spotifyDataDetail;
     String spotifyDataImage;
     String spotifyID;
+    String trackUrl;
     String callType;
 
-    public SpotifyListData(String sName, String sDetail, String sImage, String cType, String ID) {
+    public SpotifyListData(String sName, String sDetail, String sImage, String cType, String ID,
+                           String tUrl) {
         this.spotifyDataName = sName;
         this.spotifyDataDetail = sDetail;
         this.spotifyDataImage = sImage;
         this.callType = cType;
+        this.trackUrl = tUrl;
         this.spotifyID = ID;
     }
 
@@ -28,6 +31,7 @@ public class SpotifyListData implements Parcelable {
         spotifyDataDetail = in.readString();
         spotifyDataImage = in.readString();
         callType = in.readString();
+        trackUrl = in.readString();
         spotifyID = in.readString();
     }
 
@@ -35,7 +39,7 @@ public class SpotifyListData implements Parcelable {
     public int describeContents() { return 0; }
 
     public String toString() { return spotifyDataName + "--" + spotifyDataDetail + "--" +
-            spotifyDataImage + "--" + callType + "--" + spotifyID; }
+            spotifyDataImage + "--" + callType + "--" + trackUrl  + "--" + spotifyID; }
 
     public void writeToParcel(Parcel parcel, int i)
     {
@@ -43,6 +47,7 @@ public class SpotifyListData implements Parcelable {
         parcel.writeString(spotifyDataDetail);
         parcel.writeString(spotifyDataImage);
         parcel.writeString(callType);
+        parcel.writeString(trackUrl);
         parcel.writeString(spotifyID);
     }
 

@@ -1,8 +1,6 @@
 package app.com.example.android.spotifystreamer;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -51,7 +50,7 @@ public class ArtistSearchFragment extends Fragment {
         /**
          * DetailFragmentCallback for when an item has been selected.
          */
-        public void onItemSelected(String artistID);
+        void onItemSelected(String artistName, String artistID);
     }
 
     @Override
@@ -73,12 +72,19 @@ public class ArtistSearchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        boolean isTablet = getResources().getBoolean(R.bool.tablet);
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         mArtistInfoAdapter = new SpotifyListDataAdapter(getActivity(), mSpotifyArrayList);
 
         ListView artistListView = (ListView) rootView.findViewById(R.id.listview_artists);
         artistListView.setAdapter(mArtistInfoAdapter);
+
+        if (isTablet) {
+            artistListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        } else {
+            artistListView.setChoiceMode(AbsListView.CHOICE_MODE_NONE);
+        }
 
         // Update the data when the user submits what they typed in the editText
         mEditTest = (EditText) rootView.findViewById(R.id.editText_artist_search);
@@ -99,8 +105,9 @@ public class ArtistSearchFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String artistID = mSpotifyArrayList.get(i).spotifyID;
+                String artistName = mSpotifyArrayList.get(i).spotifyDataName;
                 if (artistID != null && artistID != "") {
-                    ((Callback) getActivity()).onItemSelected(artistID);
+                    ((Callback) getActivity()).onItemSelected(artistName, artistID);
                 }
             }
         });
@@ -127,7 +134,7 @@ public class ArtistSearchFragment extends Fragment {
             List<Artist> items;
 
             // Check if there is an internet connection to avoid a Fatal Exception
-            if (isNetworkAvailable()) {
+            if (Utility.isNetworkAvailable(getActivity())) {
                 artistsGet = spotify.searchArtists("artist:" + params[0] + "**");
             }
 
@@ -141,13 +148,12 @@ public class ArtistSearchFragment extends Fragment {
                     for (int i = 0; i < mSpotifyDataArray.length; i++) {
                         if (i < items.size()) {
                             String name = items.get(i).name;
-                            FindImageClosestSize finder = new FindImageClosestSize();
-                            String image = finder.findImageUrl(items.get(i).images, 200, 200);
+                            String image = Utility.findImageUrl(items.get(i).images, 200, 200);
                             String artistID = items.get(i).id;
 
-                            mSpotifyDataArray[i] = new SpotifyListData(name, "", image, "artist", artistID);
+                            mSpotifyDataArray[i] = new SpotifyListData(name, "", image, "artist", artistID, "");
                         } else {
-                            mSpotifyDataArray[i] = new SpotifyListData("", "", "", "artist", "");
+                            mSpotifyDataArray[i] = new SpotifyListData("", "", "", "artist", "", "");
                         }
                     }
                 }
@@ -181,16 +187,6 @@ public class ArtistSearchFragment extends Fragment {
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
             }
-        }
-
-        // Source:  http://stackoverflow.com/questions/4238921/detect-whether-there-is-an-internet-connection-available-on-android
-        // User:    Alexandre Jasmin
-        // Changes: getActivity().getApplicationContext() to access getSystemService
-        private boolean isNetworkAvailable() {
-            ConnectivityManager connectivityManager
-                    = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
         }
     }
 }

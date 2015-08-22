@@ -10,24 +10,22 @@ public class MainActivity extends ActionBarActivity implements ArtistSearchFragm
 
     public static String PACKAGE_NAME;
     private final String TOP_TRACKS_FRAGMENT_TAG = "TTFTAG";
-    public boolean mTwoPane;
+    public boolean mIsTablet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mIsTablet = getResources().getBoolean(R.bool.tablet);
         PACKAGE_NAME = getApplicationContext().getPackageName();
         setContentView(R.layout.activity_main);
 
-        if (findViewById(R.id.top_ten_tracks_container) != null) {
+        if (mIsTablet) {
             // if top_ten_tracks_container exists then the device must be a tablet
-            mTwoPane = true;
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.top_ten_tracks_container, new TopTenTracksFragment(), TOP_TRACKS_FRAGMENT_TAG)
                         .commit();
             }
-        } else {
-            mTwoPane = false;
         }
     }
 
@@ -53,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements ArtistSearchFragm
 
     @Override
     public void onItemSelected(String artistID) {
-        if (mTwoPane) {
+        if (mIsTablet) {
             Bundle args = new Bundle();
             args.putString(TopTenTracksFragment.TOP_TEN_DATA_KEY, artistID);
 

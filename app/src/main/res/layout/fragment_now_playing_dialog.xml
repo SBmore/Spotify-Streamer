@@ -25,8 +25,7 @@
             android:id="@+id/album_name_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Crooning" />
+            android:gravity="center" />
     </LinearLayout>
 
     <!-- Album Image section  -->
@@ -49,15 +48,18 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.05"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:gravity="center"
         android:paddingLeft="16dp">
 
         <TextView
             android:id="@+id/track_name_textview"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="I croon 4 U"/>
+            android:layout_height="wrap_content"/>
+        <SeekBar
+            android:id="@+id/track_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
@@ -74,15 +76,13 @@
             android:id="@+id/track_progress_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:text="0:35"/>
+            android:layout_alignParentLeft="true" />
 
         <TextView
-            android:id="@+id/track_length_textview"
+            android:id="@+id/track_duration_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="3:47" />
+            android:layout_alignParentRight="true" />
 
     </RelativeLayout>
 
@@ -90,24 +90,24 @@
     <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.2"
+        android:layout_weight="0.15"
         android:orientation="horizontal"
         android:gravity="center"
         android:padding="16dp">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/previous_song_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="32dp"
             android:src="@android:drawable/ic_media_previous" />
-        <ImageView
+        <ImageButton
             android:id="@+id/pause_play_song_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="32dp"
-            android:src="@android:drawable/ic_media_play" />
-        <ImageView
+            android:padding="48dp"
+            android:src="@android:drawable/ic_media_pause" />
+        <ImageButton
             android:id="@+id/next_song_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

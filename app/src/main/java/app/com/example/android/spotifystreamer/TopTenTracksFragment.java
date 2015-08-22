@@ -1,11 +1,10 @@
 package app.com.example.android.spotifystreamer;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,7 +38,6 @@ public class TopTenTracksFragment extends Fragment {
     private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
     private SpotifyListData[] mSpotifyDataArray = new SpotifyListData[10];
     private String mArtist;
-    private int mStackLevel = 0;
 
     public TopTenTracksFragment() {
     }
@@ -77,12 +75,11 @@ public class TopTenTracksFragment extends Fragment {
         ListView tracksListView = (ListView) rootView.findViewById(R.id.listView_top_ten);
         tracksListView.setAdapter(mTopTenAdapter);
 
-        // Put data into an Intent and send it over to the Top Ten Tracks when
-        // the user clicks on an item in the listView
+        // Pass the position number of the clicked item to the method that will open the dialog
         tracksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                showDialog();
+                showDialog(i);
             }
         });
 
@@ -121,7 +118,7 @@ public class TopTenTracksFragment extends Fragment {
             options.put("country", "GB");
 
             // Check if there is an internet connection to avoid a Fatal Exception
-            if (isNetworkAvailable()) {
+            if (Utility.isNetworkAvailable(getActivity())) {
                 topTracks = spotify.getArtistTopTrack(params[0], options);
             }
 
@@ -135,13 +132,13 @@ public class TopTenTracksFragment extends Fragment {
                     for (int i = 0; i < mSpotifyDataArray.length; i++) {
                         if (i < items.size()) {
                             String name = items.get(i).name;
-                            FindImageClosestSize finder = new FindImageClosestSize();
-                            String image = finder.findImageUrl(items.get(i).album.images, 200, 200);
+                            String image = Utility.findImageUrl(items.get(i).album.images, 200, 200);
                             String detail = items.get(i).album.name;
+                            String track = items.get(i).preview_url;
 
-                            mSpotifyDataArray[i] = new SpotifyListData(name, detail, image, "tracks", "");
+                            mSpotifyDataArray[i] = new SpotifyListData(name, detail, image, "tracks", "", track);
                         } else {
-                            mSpotifyDataArray[i] = new SpotifyListData("", "", "", "tracks", "");
+                            mSpotifyDataArray[i] = new SpotifyListData("", "", "", "tracks", "", "");
                         }
                     }
                 }
@@ -176,31 +173,43 @@ public class TopTenTracksFragment extends Fragment {
                 toast.show();
             }
         }
-
-        // Source:  http://stackoverflow.com/questions/4238921/detect-whether-there-is-an-internet-connection-available-on-android
-        // User:    Alexandre Jasmin
-        // Changes: getActivity().getApplicationContext() to access getSystemService
-        private boolean isNetworkAvailable() {
-            ConnectivityManager connectivityManager
-                    = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-        }
     }
 
-    void showDialog() {
-        mStackLevel++;
+    void showDialog(int selectionNum) {
+//        mStackLevel++;
+//
+//        FragmentTransaction ft = getFragmentManager().beginTransaction();
+//        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+//
+//        if (prev != null) {
+//            ft.remove(prev);
+//        }
+//        ft.addToBackStack(null);
+//
+//        // Create and show the dialog.
+//        NowPlayingDialogFragment nowPlaying = NowPlayingDialogFragment.newInstance();
+////        ft.add(R.id.top_ten_tracks_container, nowPlaying);
+////        ft.commit();
+//        nowPlaying.show(ft, "dialog");
 
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        NowPlayingDialogFragment newFragment = new NowPlayingDialogFragment().newInstance(mSpotifyDataArray, selectionNum);
 
-        if (prev != null) {
-            ft.remove(prev);
+        boolean isTablet = getActivity().getResources().getBoolean(R.bool.tablet);
+
+        if (isTablet) {
+            // The device is using a large layout, so show the fragment as a dialog
+            newFragment.show(fragmentManager, "dialog");
+        } else {
+            // The device is smaller, so show the fragment fullscreen
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            // For a little polish, specify a transition animation
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            // To make it fullscreen, use the 'content' root view as the container
+            // for the fragment, which is always the root view for the activity
+            transaction.replace(android.R.id.content, newFragment)
+                    .addToBackStack(null)
+                    .commit();
         }
-        ft.addToBackStack(null);
-
-        // Create and show the dialog.
-        NowPlayingDialogFragment nowPlaying = NowPlayingDialogFragment.newInstance(mStackLevel);
-        nowPlaying.show(ft, "dialog");
     }
 }
