@@ -41,6 +41,7 @@ public class TopTenTracksFragment extends Fragment {
     private String mBigImage;
     private String mArtist;
     private String mArtistName;
+    private int mPreviousSelection = -1;
 
     public TopTenTracksFragment() {
     }
@@ -184,27 +185,22 @@ public class TopTenTracksFragment extends Fragment {
     }
 
     void showDialog(int selectionNum) {
-//        mStackLevel++;
-//
-//        FragmentTransaction ft = getFragmentManager().beginTransaction();
-//        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
-//
-//        if (prev != null) {
-//            ft.remove(prev);
-//        }
-//        ft.addToBackStack(null);
-//
-//        // Create and show the dialog.
-//        NowPlayingDialogFragment nowPlaying = NowPlayingDialogFragment.newInstance();
-////        ft.add(R.id.top_ten_tracks_container, nowPlaying);
-////        ft.commit();
-//        nowPlaying.show(ft, "dialog");
+        boolean isTablet = getActivity().getResources().getBoolean(R.bool.tablet);
+        boolean startAudio = true;
+
+        // Don't restart the song if the user opens up the currently playing song
+        if (mPreviousSelection > -1) {
+            if (mPreviousSelection == selectionNum) {
+                startAudio = false;
+            }
+        }
+
+        mPreviousSelection = selectionNum;
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         NowPlayingDialogFragment newFragment = new NowPlayingDialogFragment()
-                .newInstance(mSpotifyDataArray, selectionNum, mArtistName);
+                .newInstance(mSpotifyDataArray, selectionNum, mArtistName, startAudio);
 
-        boolean isTablet = getActivity().getResources().getBoolean(R.bool.tablet);
 
         if (isTablet) {
             // The device is using a large layout, so show the fragment as a dialog
@@ -216,7 +212,8 @@ public class TopTenTracksFragment extends Fragment {
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             // To make it fullscreen, use the 'content' root view as the container
             // for the fragment, which is always the root view for the activity
-            transaction.replace(android.R.id.content, newFragment)
+
+            transaction.replace(R.id.top_ten_tracks_container, newFragment)
                     .addToBackStack(null)
                     .commit();
         }

@@ -99,8 +99,7 @@ public class ArtistSearchFragment extends Fragment {
             }
         });
 
-        // Put data into an Intent and send it over to the Top Ten Tracks when
-        // the user clicks on an item in the listView
+        // Send data over to the Top Ten Tracks when the user clicks on an item in the listView
         artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

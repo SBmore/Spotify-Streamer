@@ -56,7 +56,7 @@ public class SpotifyListData implements Parcelable {
         parcel.writeString(nextContentLink);
     }
 
-    public final Parcelable.Creator<SpotifyListData> CREATOR = new Parcelable.Creator<SpotifyListData>() {
+    public final static Parcelable.Creator<SpotifyListData> CREATOR = new Parcelable.Creator<SpotifyListData>() {
         @Override
         public SpotifyListData createFromParcel(Parcel parcel) { return new SpotifyListData(parcel); }
 
