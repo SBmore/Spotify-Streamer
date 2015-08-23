@@ -10,6 +10,7 @@ import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
  */
 public class MusicService extends Service implements OnCompletionListener,
         OnPreparedListener, OnErrorListener, OnSeekCompleteListener {
+    private final String LOG_TAG = MusicService.class.getSimpleName();
 
     public static final String UPDATE_UI_FILTER = "UPDATE_UI_FILTER";
     public static final String START_SONG_FILTER = "START_SONG_FILTER";
@@ -106,10 +108,14 @@ public class MusicService extends Service implements OnCompletionListener,
 
         try {
             mMediaPlayer.setDataSource(url);
+            mMediaPlayer.prepareAsync();
         } catch (IOException e) {
-
+            Log.e(LOG_TAG, "Error", e);
+        } catch (IllegalArgumentException e) {
+            Log.e(LOG_TAG, "Error", e);
+        } catch (IllegalStateException e) {
+            Log.e(LOG_TAG, "Error", e);
         }
-        mMediaPlayer.prepareAsync();
     }
 
     @Override
