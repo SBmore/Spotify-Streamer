@@ -50,10 +50,11 @@ public class MainActivity extends ActionBarActivity implements ArtistSearchFragm
     }
 
     @Override
-    public void onItemSelected(String artistID) {
+    public void onItemSelected(String artistName, String artistID) {
         if (mIsTablet) {
             Bundle args = new Bundle();
-            args.putString(TopTenTracksFragment.TOP_TEN_DATA_KEY, artistID);
+            args.putString(TopTenTracksFragment.TOP_TEN_DATA_KEY_ID, artistID);
+            args.putString(TopTenTracksFragment.TOP_TEN_DATA_KEY_NAME, artistName);
 
             TopTenTracksFragment fragment = new TopTenTracksFragment();
             fragment.setArguments(args);
@@ -63,7 +64,8 @@ public class MainActivity extends ActionBarActivity implements ArtistSearchFragm
                     .commit();
         } else {
             Intent intent = new Intent(this, TopTenTracksActivity.class);
-            intent.putExtra(TopTenTracksFragment.TOP_TEN_DATA_KEY, artistID);
+            intent.putExtra(TopTenTracksFragment.TOP_TEN_DATA_KEY_ID, artistID);
+            intent.putExtra(TopTenTracksFragment.TOP_TEN_DATA_KEY_NAME, artistName);
             startActivity(intent);
         }
     }

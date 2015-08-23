@@ -60,9 +60,9 @@ public class SpotifyListDataAdapter extends ArrayAdapter<SpotifyListData> {
         ImageView thumbnailView = (ImageView) convertView.findViewById(image);
 
         // ingore images for empty rows in the list view
-        if (spotifyData.spotifyDataImage != "") {
+        if (spotifyData.spotifySmallImage != "") {
             thumbnailView.setVisibility(View.VISIBLE);
-            Picasso.with(getContext()).load(spotifyData.spotifyDataImage).into(thumbnailView);
+            Picasso.with(getContext()).load(spotifyData.spotifySmallImage).into(thumbnailView);
         } else {
             // discourage phantom pictures on empty rows
             thumbnailView.setVisibility(View.INVISIBLE);

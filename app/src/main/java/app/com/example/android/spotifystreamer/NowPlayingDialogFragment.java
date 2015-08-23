@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,19 +24,21 @@ import java.io.IOException;
  * Created by Steven on 18/08/2015.
  */
 public class NowPlayingDialogFragment extends DialogFragment {
-    static final String NOW_PLAYING_DATA_KEY = "TRACK";  // key for intent and parcelable
-    private String mTrack;
     private MediaPlayer mMediaPlayer = new MediaPlayer();
     private static int mSelectedSong;
     private static SpotifyListData[] mSpotifyDataArray = new SpotifyListData[10];
     private static ViewHolder mViewHolder;
+    private static String mArtistName;
+    private Handler mHandler = new Handler();
     private String mElapsed;
+    private boolean mHandlerActive = false;
 
-    static NowPlayingDialogFragment newInstance(SpotifyListData[] data, int i) {
+    static NowPlayingDialogFragment newInstance(SpotifyListData[] data, int i, String artistName) {
         NowPlayingDialogFragment f = new NowPlayingDialogFragment();
 
         mSpotifyDataArray = data;
         mSelectedSong = i;
+        mArtistName = artistName;
 
         return f;
     }
@@ -69,7 +72,7 @@ public class NowPlayingDialogFragment extends DialogFragment {
         ImageButton prevTrackView = mViewHolder.previousButtonView;
         ImageButton pausePlayView = mViewHolder.playPauseButtonView;
         ImageButton nextTrackView = mViewHolder.nextButtonView;
-        SeekBar seekBar = mViewHolder.trackSeekBar;
+        final SeekBar seekBar = mViewHolder.trackSeekBar;
 
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -83,7 +86,28 @@ public class NowPlayingDialogFragment extends DialogFragment {
                 TextView progressView = mViewHolder.trackProgressView;
                 progressView.setText(mElapsed);
 
+                mViewHolder.playPauseButtonView.setImageResource(R.drawable.ic_media_pause);
                 mp.start();
+            }
+        });
+
+        mMediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+            @Override
+            public void onSeekComplete(MediaPlayer mp) {
+                if (!mp.isPlaying()) {
+                    mp.start();
+                    mViewHolder.playPauseButtonView.setImageResource(R.drawable.ic_media_pause);
+                }
+            }
+        });
+
+        // When the track reaches the end set the play/pause to play and reset the seekbar
+        // TODO: If there's time it would be nice for it to move to the next track
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mViewHolder.playPauseButtonView.setImageResource(R.drawable.ic_media_play);
+                seekBar.setProgress(0);
             }
         });
 
@@ -91,8 +115,11 @@ public class NowPlayingDialogFragment extends DialogFragment {
             int newPosition;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mHandler.removeCallbacks(mUpdateUIProgressRunnable);
+                mHandlerActive = false;
+
                 int trackLength = mMediaPlayer.getDuration();
-                int newPosition = trackLength / 100 * progress;
+                newPosition = trackLength / 100 * progress;
 
                 mElapsed = Utility.millisecondsToSeconds(newPosition);
 
@@ -108,6 +135,7 @@ public class NowPlayingDialogFragment extends DialogFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 mMediaPlayer.seekTo(newPosition);
+                updateProgress();
             }
         });
 
@@ -135,6 +163,9 @@ public class NowPlayingDialogFragment extends DialogFragment {
                     mMediaPlayer.pause();
                     mViewHolder.playPauseButtonView.setImageResource(R.drawable.ic_media_play);
                 } else {
+                    if (!mHandlerActive) {
+                        updateProgress();
+                    }
                     mMediaPlayer.start();
                     mViewHolder.playPauseButtonView.setImageResource(R.drawable.ic_media_pause);
                 }
@@ -161,9 +192,12 @@ public class NowPlayingDialogFragment extends DialogFragment {
     }
 
     private void prepareAudio() {
-        String url = mSpotifyDataArray[mSelectedSong].trackUrl;
+        String url = mSpotifyDataArray[mSelectedSong].nextContentLink;
 
-        mMediaPlayer.stop();
+        if (mHandlerActive) {
+            mHandler.removeCallbacks(mUpdateUIProgressRunnable);
+            mHandlerActive = false;
+        }
         mMediaPlayer.reset();
 
         try {
@@ -173,12 +207,16 @@ public class NowPlayingDialogFragment extends DialogFragment {
         }
 
         mMediaPlayer.prepareAsync();
+        updateProgress();
     }
 
     private void prepareUI() {
         String albumName = mSpotifyDataArray[mSelectedSong].spotifyDataDetail;
         String trackName = mSpotifyDataArray[mSelectedSong].spotifyDataName;
-        String albumImg = mSpotifyDataArray[mSelectedSong].spotifyDataImage;
+        String albumImg = mSpotifyDataArray[mSelectedSong].spotifyLargeImage;
+
+        TextView artistNameView = mViewHolder.artistNameView;
+        artistNameView.setText(mArtistName);
 
         TextView albumView = mViewHolder.albumNameView;
         albumView.setText(albumName);
@@ -209,6 +247,8 @@ public class NowPlayingDialogFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mHandler.removeCallbacks(mUpdateUIProgressRunnable);
+        mHandlerActive = false;
         mMediaPlayer.stop();
         mMediaPlayer.release();
         mMediaPlayer = null;
@@ -238,5 +278,23 @@ public class NowPlayingDialogFragment extends DialogFragment {
             playPauseButtonView = (ImageButton) view.findViewById(R.id.pause_play_song_imageview);
             nextButtonView = (ImageButton) view.findViewById(R.id.next_song_imageview);
         }
+    }
+
+    private Runnable mUpdateUIProgressRunnable = new Runnable() {
+        public void run() {
+            double currentPosition = mMediaPlayer.getCurrentPosition();
+            double trackLength = mMediaPlayer.getDuration();
+            long progress = (long) ((100 / trackLength) * currentPosition);
+
+            mViewHolder.trackProgressView.setText(Utility.millisecondsToSeconds((int) currentPosition));
+            mViewHolder.trackSeekBar.setProgress((int) progress);
+
+            mHandler.postDelayed(this, 100);
+        }
+    };
+
+    public void updateProgress() {
+        mHandlerActive = true;
+        mHandler.postDelayed(mUpdateUIProgressRunnable, 100);
     }
 }

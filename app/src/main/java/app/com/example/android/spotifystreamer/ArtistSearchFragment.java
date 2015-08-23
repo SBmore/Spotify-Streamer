@@ -104,7 +104,7 @@ public class ArtistSearchFragment extends Fragment {
         artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String artistID = mSpotifyArrayList.get(i).spotifyID;
+                String artistID = mSpotifyArrayList.get(i).nextContentLink;
                 String artistName = mSpotifyArrayList.get(i).spotifyDataName;
                 if (artistID != null && artistID != "") {
                     ((Callback) getActivity()).onItemSelected(artistName, artistID);
@@ -148,12 +148,12 @@ public class ArtistSearchFragment extends Fragment {
                     for (int i = 0; i < mSpotifyDataArray.length; i++) {
                         if (i < items.size()) {
                             String name = items.get(i).name;
-                            String image = Utility.findImageUrl(items.get(i).images, 200, 200);
+                            String smallImage = Utility.findImageUrl(items.get(i).images, 200, 200);
                             String artistID = items.get(i).id;
 
-                            mSpotifyDataArray[i] = new SpotifyListData(name, "", image, "artist", artistID, "");
+                            mSpotifyDataArray[i] = new SpotifyListData(name, smallImage, "artist", artistID);
                         } else {
-                            mSpotifyDataArray[i] = new SpotifyListData("", "", "", "artist", "", "");
+                            mSpotifyDataArray[i] = new SpotifyListData("", "", "artist", "");
                         }
                     }
                 }

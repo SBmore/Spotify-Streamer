@@ -31,13 +31,16 @@ import kaaes.spotify.webapi.android.models.Tracks;
  */
 public class TopTenTracksFragment extends Fragment {
     private final String LOG_TAG = FetchTopTenTask.class.getSimpleName();
-    static final String TOP_TEN_DATA_KEY = "ARTIST";  // key for intent and parcelable
+    static final String TOP_TEN_DATA_KEY_ID = "ARTIST_ID";  // key for intent and parcelable
+    static final String TOP_TEN_DATA_KEY_NAME = "ARTIST_NAME";
     static final String TOP_TEN_SAVE_KEY = "TRACKS";  // key for savedInstanceState
 
     private SpotifyListDataAdapter mTopTenAdapter;
     private ArrayList<SpotifyListData> mSpotifyArrayList = new ArrayList<>();
     private SpotifyListData[] mSpotifyDataArray = new SpotifyListData[10];
+    private String mBigImage;
     private String mArtist;
+    private String mArtistName;
 
     public TopTenTracksFragment() {
     }
@@ -63,9 +66,11 @@ public class TopTenTracksFragment extends Fragment {
                              Bundle savedInstanceState) {
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mArtist = arguments.getString(TOP_TEN_DATA_KEY);
+            mArtist = arguments.getString(TOP_TEN_DATA_KEY_ID);
+            mArtistName = arguments.getString(TOP_TEN_DATA_KEY_NAME);
         } else {
-            mArtist = getActivity().getIntent().getStringExtra(TOP_TEN_DATA_KEY);
+            mArtist = getActivity().getIntent().getStringExtra(TOP_TEN_DATA_KEY_ID);
+            mArtistName = getActivity().getIntent().getStringExtra(TOP_TEN_DATA_KEY_NAME);
         }
 
         mTopTenAdapter = new SpotifyListDataAdapter(getActivity(), mSpotifyArrayList);
@@ -132,13 +137,16 @@ public class TopTenTracksFragment extends Fragment {
                     for (int i = 0; i < mSpotifyDataArray.length; i++) {
                         if (i < items.size()) {
                             String name = items.get(i).name;
-                            String image = Utility.findImageUrl(items.get(i).album.images, 200, 200);
+                            String smallImage = Utility.findImageUrl(items.get(i).album.images, 200, 200);
+                            String bigImage = Utility.findImageUrl(items.get(i).album.images, 640, 640);
                             String detail = items.get(i).album.name;
                             String track = items.get(i).preview_url;
 
-                            mSpotifyDataArray[i] = new SpotifyListData(name, detail, image, "tracks", "", track);
+                            mSpotifyDataArray[i] = new SpotifyListData(name, smallImage, "tracks", track);
+                            mSpotifyDataArray[i].setSpotifyDataDetail(detail);
+                            mSpotifyDataArray[i].setSpotifyLargeImage(bigImage);
                         } else {
-                            mSpotifyDataArray[i] = new SpotifyListData("", "", "", "tracks", "", "");
+                            mSpotifyDataArray[i] = new SpotifyListData("", "", "tracks", "");
                         }
                     }
                 }
@@ -193,7 +201,8 @@ public class TopTenTracksFragment extends Fragment {
 //        nowPlaying.show(ft, "dialog");
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        NowPlayingDialogFragment newFragment = new NowPlayingDialogFragment().newInstance(mSpotifyDataArray, selectionNum);
+        NowPlayingDialogFragment newFragment = new NowPlayingDialogFragment()
+                .newInstance(mSpotifyDataArray, selectionNum, mArtistName);
 
         boolean isTablet = getActivity().getResources().getBoolean(R.bool.tablet);
 

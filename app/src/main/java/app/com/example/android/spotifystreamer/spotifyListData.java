@@ -10,45 +10,50 @@ import android.os.Parcelable;
  */
 public class SpotifyListData implements Parcelable {
     String spotifyDataName;
-    String spotifyDataDetail;
-    String spotifyDataImage;
-    String spotifyID;
-    String trackUrl;
+    String spotifyDataDetail = "";
+    String spotifySmallImage;
+    String spotifyLargeImage = "";
+    String nextContentLink;
     String callType;
 
-    public SpotifyListData(String sName, String sDetail, String sImage, String cType, String ID,
-                           String tUrl) {
+    public SpotifyListData(String sName, String sImage, String cType, String nContentLink) {
         this.spotifyDataName = sName;
-        this.spotifyDataDetail = sDetail;
-        this.spotifyDataImage = sImage;
+        this.spotifySmallImage = sImage;
         this.callType = cType;
-        this.trackUrl = tUrl;
-        this.spotifyID = ID;
+        this.nextContentLink = nContentLink;
+    }
+
+    public void setSpotifyDataDetail (String sDetail) {
+        this.spotifyDataDetail = sDetail;
+    }
+
+    public void setSpotifyLargeImage (String lImage) {
+        this.spotifyLargeImage = lImage;
     }
 
     private SpotifyListData(Parcel in) {
         spotifyDataName = in.readString();
         spotifyDataDetail = in.readString();
-        spotifyDataImage = in.readString();
+        spotifySmallImage = in.readString();
+        spotifyLargeImage = in.readString();
         callType = in.readString();
-        trackUrl = in.readString();
-        spotifyID = in.readString();
+        nextContentLink = in.readString();
     }
 
     @Override
     public int describeContents() { return 0; }
 
     public String toString() { return spotifyDataName + "--" + spotifyDataDetail + "--" +
-            spotifyDataImage + "--" + callType + "--" + trackUrl  + "--" + spotifyID; }
+            spotifySmallImage + "--" + spotifyLargeImage  + "--" + callType + "--" + nextContentLink; }
 
     public void writeToParcel(Parcel parcel, int i)
     {
         parcel.writeString(spotifyDataName);
         parcel.writeString(spotifyDataDetail);
-        parcel.writeString(spotifyDataImage);
+        parcel.writeString(spotifySmallImage);
+        parcel.writeString(spotifyLargeImage);
         parcel.writeString(callType);
-        parcel.writeString(trackUrl);
-        parcel.writeString(spotifyID);
+        parcel.writeString(nextContentLink);
     }
 
     public final Parcelable.Creator<SpotifyListData> CREATOR = new Parcelable.Creator<SpotifyListData>() {
